@@ -75,10 +75,12 @@ whose size is determined when the object is allocated.
 #endif
 
 /* PyObject_HEAD defines the initial segment of every PyObject. */
+/* PyObject_HEAD定义了每一个PyObject对象。是所有对象的公共头部 */
+/* Python中最基本的信息由引用计数和类型信息组成 */
 #define PyObject_HEAD                   \
-    _PyObject_HEAD_EXTRA                \
-    Py_ssize_t ob_refcnt;               \
-    struct _typeobject *ob_type;
+     _PyObject_HEAD_EXTRA              /* 发布的版本是不会大有这个头部信息的 */  \
+     Py_ssize_t ob_refcnt;             /* 引用计数 */  \
+     struct _typeobject *ob_type;      /* 类型信息 */        
 
 #define PyObject_HEAD_INIT(type)        \
     _PyObject_EXTRA_INIT                \
@@ -93,7 +95,7 @@ whose size is determined when the object is allocated.
  * has room for ob_size elements.  Note that ob_size is an element count,
  * not necessarily a byte count.
  */
-#define PyObject_VAR_HEAD               \
+#define PyObject_VAR_HEAD              /* 可变长对象头部 */  \
     PyObject_HEAD                       \
     Py_ssize_t ob_size; /* Number of items in variable part */
 #define Py_INVALID_SIZE (Py_ssize_t)-1
@@ -103,6 +105,7 @@ whose size is determined when the object is allocated.
  * by hand.  Similarly every pointer to a variable-size Python object can,
  * in addition, be cast to PyVarObject*.
  */
+/* Python的基础，Python中所有的对象都可以用PyObject指针来指向 */
 typedef struct _object {
     PyObject_HEAD
 } PyObject;
