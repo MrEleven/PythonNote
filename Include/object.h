@@ -128,8 +128,8 @@ typedef PyObject * (*binaryfunc)(PyObject *, PyObject *);
 typedef PyObject * (*ternaryfunc)(PyObject *, PyObject *, PyObject *);
 
 typedef int (*inquiry)(PyObject *);                 /* inquiry是lenfunc的一个宏，用于查询 */
-typedef Py_ssize_t (*lenfunc)(PyObject *);          /* 获取长度的方法 */
-typedef int (*coercion)(PyObject **, PyObject **);
+typedef Py_ssize_t (*lenfunc)(PyObject *);          /* 获取长度的方法 Py_ssize_t是int的宏 */
+typedef int (*coercion)(PyObject **, PyObject **);  /* 暂时不知道用来干嘛的 */
 typedef PyObject *(*intargfunc)(PyObject *, int) Py_DEPRECATED(2.5);
 typedef PyObject *(*intintargfunc)(PyObject *, int, int) Py_DEPRECATED(2.5);
 typedef PyObject *(*ssizeargfunc)(PyObject *, Py_ssize_t);
@@ -210,6 +210,7 @@ typedef int (*objobjproc)(PyObject *, PyObject *);
 typedef int (*visitproc)(PyObject *, void *);
 typedef int (*traverseproc)(PyObject *, visitproc, void *);
 
+/* numberic类型的默认方法都在这里了 */
 typedef struct {
     /* For numbers without flag bit Py_TPFLAGS_CHECKTYPES set, all
        arguments are guaranteed to be of the object's type (modulo
@@ -266,6 +267,7 @@ typedef struct {
     unaryfunc nb_index;
 } PyNumberMethods;
 
+/* 序列类型的方法 */
 typedef struct {
     lenfunc sq_length;
     binaryfunc sq_concat;
@@ -280,12 +282,14 @@ typedef struct {
     ssizeargfunc sq_inplace_repeat;
 } PySequenceMethods;
 
+/* map类型的方法 */
 typedef struct {
     lenfunc mp_length;
     binaryfunc mp_subscript;
     objobjargproc mp_ass_subscript;
 } PyMappingMethods;
 
+/* 目前不知道是干嘛用的 */
 typedef struct {
     readbufferproc bf_getreadbuffer;
     writebufferproc bf_getwritebuffer;
