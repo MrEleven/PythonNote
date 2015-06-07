@@ -8,10 +8,13 @@ extern "C" {
 /* Object and type object interface */
 
 /*
+// Python中的对象的内存一般不会静态分配，也不会在栈上分配。Python对象都是存活在堆上的。
+// 因为Python对象使用的时候都是通过指针来引用的。
 Objects are structures allocated on the heap.  Special rules apply to
 the use of objects to ensure they are properly garbage-collected.
-Objects are never allocated statically or on the stack; they must be
-accessed through special macros and functions only.  (Type objects are
+Objects are never allocated statically or on the stack; 
+
+they must be accessed through special macros and functions only.  (Type objects are
 exceptions to the first rule; the standard types are represented by
 statically initialized type objects, although work on type/class unification
 for Python 2.2 made it possible to have heap-allocated type objects too).
@@ -47,32 +50,16 @@ used for this (to accommodate for future changes).  The implementation
 of a particular object type can cast the object pointer to the proper
 type and back.
 
+// 这句话就是扯淡。对于包含多个item得对象得尺寸是在该对象被分配得时候决定得。
+// A standard interface这个东西不就是指len方法么。
+// 其实是这样的，内存大小是在这个对象被分配的时候确定的，但是items数量肯定是在运行时根据自己的item数量确定的。
+// 我要被我的英语折服了。。。。。。当初TMD就没有好好学英语。真是坑爹
 A standard interface exists for objects that contain an array of items
 whose size is determined when the object is allocated.
 */
 
-/* Py_DEBUG implies Py_TRACE_REFS. */
-#if defined(Py_DEBUG) && !defined(Py_TRACE_REFS)
-#define Py_TRACE_REFS
-#endif
-
-/* Py_TRACE_REFS implies Py_REF_DEBUG. */
-#if defined(Py_TRACE_REFS) && !defined(Py_REF_DEBUG)
-#define Py_REF_DEBUG
-#endif
-
-#ifdef Py_TRACE_REFS
-/* Define pointers to support a doubly-linked list of all live heap objects. */
-#define _PyObject_HEAD_EXTRA            \
-    struct _object *_ob_next;           \
-    struct _object *_ob_prev;
-
-#define _PyObject_EXTRA_INIT 0, 0,
-
-#else
 #define _PyObject_HEAD_EXTRA
 #define _PyObject_EXTRA_INIT
-#endif
 
 /* PyObject_HEAD defines the initial segment of every PyObject. */
 /* PyObject_HEAD定义了每一个PyObject对象。是所有对象的公共头部 */
@@ -80,7 +67,7 @@ whose size is determined when the object is allocated.
 #define PyObject_HEAD                   \
      _PyObject_HEAD_EXTRA              /* 发布的版本是不会大有这个头部信息的 */  \
      Py_ssize_t ob_refcnt;             /* 引用计数 */  \
-     struct _typeobject *ob_type;      /* 类型信息 */        
+     struct _typeobject *ob_type;      /* 类型信息 */
 
 #define PyObject_HEAD_INIT(type)        \
     _PyObject_EXTRA_INIT                \
@@ -97,7 +84,7 @@ whose size is determined when the object is allocated.
  */
 #define PyObject_VAR_HEAD              /* 可变长对象头部 */  \
     PyObject_HEAD                       \
-    Py_ssize_t ob_size; /* Number of items in variable part */
+    Py_ssize_t ob_size; /* 记录了包含子对象的数量 */  /* Number of items in variable part */
 #define Py_INVALID_SIZE (Py_ssize_t)-1
 
 /* Nothing is actually declared to be a PyObject, but every pointer to
@@ -110,10 +97,12 @@ typedef struct _object {
     PyObject_HEAD
 } PyObject;
 
+/* Python中可变长对象的基类，比基本对象增加了一个子对象的个数的属性 */
 typedef struct {
     PyObject_VAR_HEAD
 } PyVarObject;
 
+// 获取引用计数，类型，可变长对象的子对象数量
 #define Py_REFCNT(ob)           (((PyObject*)(ob))->ob_refcnt)
 #define Py_TYPE(ob)             (((PyObject*)(ob))->ob_type)
 #define Py_SIZE(ob)             (((PyVarObject*)(ob))->ob_size)
@@ -133,11 +122,13 @@ NB: the methods for certain type groups are now contained in separate
 method blocks.
 */
 
+// 下面这些typedef真心不知道是干嘛的。语法真是奇葩
 typedef PyObject * (*unaryfunc)(PyObject *);
 typedef PyObject * (*binaryfunc)(PyObject *, PyObject *);
 typedef PyObject * (*ternaryfunc)(PyObject *, PyObject *, PyObject *);
-typedef int (*inquiry)(PyObject *);
-typedef Py_ssize_t (*lenfunc)(PyObject *);
+
+typedef int (*inquiry)(PyObject *);                 /* inquiry是lenfunc的一个宏，用于查询 */
+typedef Py_ssize_t (*lenfunc)(PyObject *);          /* 获取长度的方法 */
 typedef int (*coercion)(PyObject **, PyObject **);
 typedef PyObject *(*intargfunc)(PyObject *, int) Py_DEPRECATED(2.5);
 typedef PyObject *(*intintargfunc)(PyObject *, int, int) Py_DEPRECATED(2.5);
@@ -324,6 +315,7 @@ typedef int (*initproc)(PyObject *, PyObject *, PyObject *);
 typedef PyObject *(*newfunc)(struct _typeobject *, PyObject *, PyObject *);
 typedef PyObject *(*allocfunc)(struct _typeobject *, Py_ssize_t);
 
+/* Python中的类型对象 */
 typedef struct _typeobject {
     PyObject_VAR_HEAD
     const char *tp_name; /* For printing, in format "<module>.<name>" */

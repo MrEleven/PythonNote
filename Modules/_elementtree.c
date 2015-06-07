@@ -101,7 +101,7 @@ do { memory -= size; printf("%8d - %s\n", memory, comment); } while (0)
 #endif
 
 #if (PY_VERSION_HEX < 0x02050000)
-typedef int Py_ssize_t;
+typedef int Py_ssize_t;     /* Python中尺寸貌似都是int */
 #define lenfunc inquiry
 #endif
 
