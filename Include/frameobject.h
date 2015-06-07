@@ -13,13 +13,14 @@ typedef struct {
     int b_level;		/* value stack level to pop to */
 } PyTryBlock;
 
+/* Python中栈帧模型 */
 typedef struct _frame {
-    PyObject_VAR_HEAD
-    struct _frame *f_back;	/* previous frame, or NULL */
-    PyCodeObject *f_code;	/* code segment */
-    PyObject *f_builtins;	/* builtin symbol table (PyDictObject) */
-    PyObject *f_globals;	/* global symbol table (PyDictObject) */
-    PyObject *f_locals;		/* local symbol table (any mapping) */
+    PyObject_VAR_HEAD		/* 为毛栈帧是可变长的 */
+    struct _frame *f_back;	/* 前一个栈帧 */          /* previous frame, or NULL */
+    PyCodeObject *f_code;	/* PyCodeObject */        /* code segment */
+    PyObject *f_builtins;	/* builtins符号表 */      /* builtin symbol table (PyDictObject) */
+    PyObject *f_globals;	/* global符号表 */   	 /* global symbol table (PyDictObject) */
+    PyObject *f_locals;		/* locals符号表 */	/* local symbol table (any mapping) */
     PyObject **f_valuestack;	/* points after the last local */
     /* Next free slot in f_valuestack.  Frame creation sets to f_valuestack.
        Frame evaluation usually NULLs it, but a frame that yields sets it

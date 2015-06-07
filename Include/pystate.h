@@ -13,6 +13,7 @@ extern "C" {
 struct _ts; /* Forward */
 struct _is; /* Forward */
 
+/* Python进程模型 */
 typedef struct _is {
 
     struct _is *next;
@@ -53,14 +54,15 @@ typedef int (*Py_tracefunc)(PyObject *, struct _frame *, int, PyObject *);
 #define PyTrace_C_EXCEPTION 5
 #define PyTrace_C_RETURN 6
 
+/* Python线程模型*/
 typedef struct _ts {
     /* See Python/ceval.c for comments explaining most fields */
 
-    struct _ts *next;
-    PyInterpreterState *interp;
+    struct _ts *next;    /* 一个进程中的所有线程都是通过一个链表链接起来的 */
+    PyInterpreterState *interp;  /* 所属进程 */
 
-    struct _frame *frame;
-    int recursion_depth;
+    struct _frame *frame;    /* 应该是最后一个栈帧 */
+    int recursion_depth;	
     /* 'tracing' keeps track of the execution depth when tracing/profiling.
        This is to prevent the actual trace/profile code from being recorded in
        the trace/profile. */
