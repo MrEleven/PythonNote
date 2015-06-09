@@ -46,6 +46,7 @@ static int autoTLSkey = 0;
 
 static PyInterpreterState *interp_head = NULL;
 
+/* 始终指向当前活动的线程 */
 PyThreadState *_PyThreadState_Current = NULL;
 PyThreadFrameGetter _PyThreadState_GetFrame = NULL;
 
@@ -53,7 +54,7 @@ PyThreadFrameGetter _PyThreadState_GetFrame = NULL;
 static void _PyGILState_NoteThreadState(PyThreadState* tstate);
 #endif
 
-
+/* 创建进程对象 */
 PyInterpreterState *
 PyInterpreterState_New(void)
 {
@@ -153,6 +154,7 @@ threadstate_getframe(PyThreadState *self)
     return self->frame;
 }
 
+/* 创建一个新的线程 */
 static PyThreadState *
 new_threadstate(PyInterpreterState *interp, int init)
 {
@@ -206,6 +208,7 @@ new_threadstate(PyInterpreterState *interp, int init)
 
     return tstate;
 }
+
 
 PyThreadState *
 PyThreadState_New(PyInterpreterState *interp)
@@ -333,6 +336,7 @@ PyThreadState_Get(void)
 }
 
 
+/* 线程调度，其实就只是简单改变了一下_PyThreadState_Current */
 PyThreadState *
 PyThreadState_Swap(PyThreadState *newts)
 {
